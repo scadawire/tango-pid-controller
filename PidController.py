@@ -62,7 +62,7 @@ class PidController(Device, metaclass=DeviceMeta):
         while(1):
             self.regulate()
             time.sleep(self.regulateInterval)
-            
+
     def regulate(self):
         actorValue = self.deviceActor.read_attribute(self.ActorAttribute).value;
         sensorValue = self.deviceSensor.read_attribute(self.SensorAttribute).value;
@@ -77,19 +77,19 @@ class PidController(Device, metaclass=DeviceMeta):
         print("current target value: " + str(self.__sensorValueTarget))
         print("difference: " + str(difference))
         
-    # Calculate control signal by using PID controller
-    newActorValue = self.pid(time(), self.__sensorValueTarget - sensorValue)
-    self.__lastChanged = time()
-    self.deviceActor.write_attribute(self.ActorAttribute, newActorValue)
-    print("changed actor to " + str(newActorValue))
+        # Calculate control signal by using PID controller
+        newActorValue = self.pid(time(), self.__sensorValueTarget - sensorValue)
+        self.__lastChanged = time()
+        self.deviceActor.write_attribute(self.ActorAttribute, newActorValue)
+        print("changed actor to " + str(newActorValue))
 
-  def init_device(self):
-    self.set_state(DevState.INIT)
-    self.deviceActor = DeviceProxy(self.ActorDevice)
-    self.deviceSensor = DeviceProxy(self.SensorDevice)
-    Thread(target=self.regulateLoop).start()
-    self.set_state(DevState.ON)
-    self.pid.set_output_limits(self.ActorMinValue, self.ActorMaxValue)
+    def init_device(self):
+        self.set_state(DevState.INIT)
+        self.deviceActor = DeviceProxy(self.ActorDevice)
+        self.deviceSensor = DeviceProxy(self.SensorDevice)
+        Thread(target=self.regulateLoop).start()
+        self.set_state(DevState.ON)
+        self.pid.set_output_limits(self.ActorMinValue, self.ActorMaxValue)
 
 if __name__ == "__main__":
     deviceServerName = os.getenv("DEVICE_SERVER_NAME")
