@@ -45,7 +45,7 @@ class PidController(Device, metaclass=DeviceMeta):
     sensorValueTargetInit = device_property(dtype=float, default_value=0)
     deviceActor = 0
     deviceSensor = 0
-    pid = PID(Kp=PID_kp, Ki=PID_ki, Kd=PID_kd, Tf=PID_tf)
+    pid = 0
     __lastChanged = time.time()
     
     def read_sensorValueCurrent(self):
@@ -114,8 +114,9 @@ class PidController(Device, metaclass=DeviceMeta):
         self.deviceSensor = DeviceProxy(self.SensorDevice)
         __sensorValueTarget = self.sensorValueTargetInit
         Thread(target=self.regulateLoop).start()
+        self.pid = PID(Kp=float(self.PID_kp), Ki=float(self.PID_ki), Kd=float(self.PID_kd), Tf=float(self.PID_tf))
+        self.pid.set_output_limits(float(self.ActorMinValue), float(self.ActorMaxValue))
         self.set_state(DevState.ON)
-        self.pid.set_output_limits(self.ActorMinValue, self.ActorMaxValue)
 
 if __name__ == "__main__":
     deviceServerName = os.getenv("DEVICE_SERVER_NAME")
