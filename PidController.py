@@ -22,7 +22,11 @@ class PidController(Device, metaclass=DeviceMeta):
         access=AttrWriteType.READ, polling_period=1000,
         unit="_", format="8.4f")
 
-    sensorValueTarget = device_property(dtype=float, default_value=0)
+    __sensorValueTarget = attribute(label="sensorValueTarget", dtype=float,
+        display_level=DispLevel.EXPERT,
+        access=AttrWriteType.READ_WRITE, polling_period=1000,
+        unit="_", format="8.4f")
+
     ActorDevice = device_property(dtype=str, default_value="")
     ActorAttribute = device_property(dtype=str, default_value="")
     SensorDevice = device_property(dtype=str, default_value="")
