@@ -94,7 +94,7 @@ class PidController(Device, metaclass=DeviceMeta):
         newActorValue = self.pid(time.time(), self.__sensorValueTarget - sensorValue)
         self.__lastChanged = time.time()
         print("changing actor to " + str(newActorValue))
-		if(actorAttribute.CmdArgType == CmdArgType.DevString):
+        if(actorAttribute.CmdArgType == CmdArgType.DevString):
             newActorValue = str(newActorValue)
         self.deviceActor.write_attribute(self.ActorAttribute, newActorValue)
 
