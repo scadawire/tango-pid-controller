@@ -49,11 +49,11 @@ class PidController(Device, metaclass=DeviceMeta):
     __lastChanged = time.time()
     
     def read_sensorValueCurrent(self):
-        sensorValue = self.deviceSensor.read_attribute(self.SensorAttribute).value
+        sensorValue = self.getSensorValueFloat()
         return sensorValue, time.time(), AttrQuality.ATTR_VALID
     
     def read_actorValueCurrent(self):
-        actorValue = self.deviceActor.read_attribute(self.ActorAttribute).value
+        actorValue = self.getActorValueFloat()
         return actorValue, time.time(), AttrQuality.ATTR_VALID
         
     def read_sensorValueTarget(self):
@@ -70,22 +70,30 @@ class PidController(Device, metaclass=DeviceMeta):
             self.regulate()
             time.sleep(self.regulateInterval)
 
-    def regulate(self):
-        actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
+    def getSensorValueFloat(self):
         sensorAttribute = self.deviceSensor.read_attribute(self.SensorAttribute)
-        actorValue = actorAttribute.value
         sensorValue = sensorAttribute.value
-        if(actorAttribute.CmdArgType == CmdArgType.DevString):
-            actorValue = float(actorValue)
-        if(sensorAttribute.CmdArgType == CmdArgType.DevString):
+        if(sensorAttribute.type == CmdArgType.DevString):
             sensorValue = float(sensorValue)
+        return sensorValue
+
+    def getActorValueFloat(self):
+        actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
+        actorValue = actorAttribute.value
+        if(actorAttribute.type == CmdArgType.DevString):
+            actorValue = float(actorValue)
+        return actorValue
+        
+    def regulate(self):
+        actorValue = self.getActorValueFloat()
+        sensorValue = self.getSensorValueFloat()
         if((time.time() - self.__lastChanged ) < self.ActorMinControlInterval):
             return # not allowed to change again
         difference = sensorValue - self.__sensorValueTarget
         if(abs(difference) < self.Hysterese):
             return # difference is in bounds of hysterese
         
-        print("current actor value state: " + str(actorValue))
+        print("current actorValue: " + str(actorValue))
         print("current sensorValue: " + str(sensorValue))
         print("current target value: " + str(self.__sensorValueTarget))
         print("difference: " + str(difference))
@@ -94,7 +102,8 @@ class PidController(Device, metaclass=DeviceMeta):
         newActorValue = self.pid(time.time(), self.__sensorValueTarget - sensorValue)
         self.__lastChanged = time.time()
         print("changing actor to " + str(newActorValue))
-        if(actorAttribute.CmdArgType == CmdArgType.DevString):
+        actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
+        if(actorAttribute.type == CmdArgType.DevString):
             newActorValue = str(newActorValue)
         self.deviceActor.write_attribute(self.ActorAttribute, newActorValue)
 
