@@ -89,7 +89,7 @@ class PidController(Device, metaclass=DeviceMeta):
         sensorValue = self.getSensorValueFloat()
         if((time.time() - self.__lastChanged ) < self.ActorMinControlInterval):
             return # not allowed to change again
-        difference = sensorValue - self.__sensorValueTarget
+        difference = float(sensorValue) - float(self.__sensorValueTarget)
         if(abs(difference) < self.Hysterese):
             return # difference is in bounds of hysterese
         
@@ -99,7 +99,7 @@ class PidController(Device, metaclass=DeviceMeta):
         print("difference: " + str(difference))
         
         # Calculate control signal by using PID controller
-        newActorValue = self.pid(time.time(), self.__sensorValueTarget - sensorValue)
+        newActorValue = self.pid(time.time(), difference)
         self.__lastChanged = time.time()
         print("changing actor to " + str(newActorValue))
         actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
