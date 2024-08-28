@@ -49,11 +49,11 @@ class PidController(Device, metaclass=DeviceMeta):
     __lastChanged = time.time()
     
     def read_sensorValueCurrent(self):
-        sensorValue = self.deviceSensor.read_attribute(self.SensorAttribute).value;
+        sensorValue = self.deviceSensor.read_attribute(self.SensorAttribute).value
         return sensorValue, time.time(), AttrQuality.ATTR_VALID
     
     def read_actorValueCurrent(self):
-        actorValue = self.deviceActor.read_attribute(self.ActorAttribute).value;
+        actorValue = self.deviceActor.read_attribute(self.ActorAttribute).value
         return actorValue, time.time(), AttrQuality.ATTR_VALID
         
     def read_sensorValueTarget(self):
@@ -71,8 +71,14 @@ class PidController(Device, metaclass=DeviceMeta):
             time.sleep(self.regulateInterval)
 
     def regulate(self):
-        actorValue = self.deviceActor.read_attribute(self.ActorAttribute).value;
-        sensorValue = self.deviceSensor.read_attribute(self.SensorAttribute).value;
+        actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
+        sensorAttribute = self.deviceSensor.read_attribute(self.SensorAttribute)
+        actorValue = actorAttribute.value
+        sensorValue = sensorAttribute.value
+        if(actorAttribute.CmdArgType == CmdArgType.DevString):
+            actorValue = float(actorValue)
+        if(sensorAttribute.CmdArgType == CmdArgType.DevString):
+            sensorValue = float(sensorValue)
         if((time.time() - self.__lastChanged ) < self.ActorMinControlInterval):
             return # not allowed to change again
         difference = sensorValue - self.__sensorValueTarget
@@ -87,8 +93,10 @@ class PidController(Device, metaclass=DeviceMeta):
         # Calculate control signal by using PID controller
         newActorValue = self.pid(time.time(), self.__sensorValueTarget - sensorValue)
         self.__lastChanged = time.time()
+        print("changing actor to " + str(newActorValue))
+		if(actorAttribute.CmdArgType == CmdArgType.DevString):
+            newActorValue = str(newActorValue)
         self.deviceActor.write_attribute(self.ActorAttribute, newActorValue)
-        print("changed actor to " + str(newActorValue))
 
     def init_device(self):
         self.set_state(DevState.INIT)
