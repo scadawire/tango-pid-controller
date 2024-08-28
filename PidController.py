@@ -1,5 +1,5 @@
 import time
-from tango import AttrQuality, AttrWriteType, DispLevel, DevState, Attr, CmdArgType, UserDefaultAttrProp
+from tango import AttrQuality, AttrWriteType, DispLevel, DevState, Attr, CmdArgType, UserDefaultAttrProp, DeviceProxy
 from tango.server import Device, attribute, command, DeviceMeta
 from tango.server import class_property, device_property
 from tango.server import run
