@@ -85,6 +85,7 @@ class PidController(Device, metaclass=DeviceMeta):
 
     def init_device(self):
         self.set_state(DevState.INIT)
+        self.get_device_properties(self.get_device_class())
         self.deviceActor = DeviceProxy(self.ActorDevice)
         self.deviceSensor = DeviceProxy(self.SensorDevice)
         Thread(target=self.regulateLoop).start()
