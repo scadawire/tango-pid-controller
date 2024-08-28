@@ -39,18 +39,18 @@ class PidController(Device, metaclass=DeviceMeta):
     deviceActor = 0
     deviceSensor = 0
     pid = PID(Kp=PID_kp, Ki=PID_ki, Kd=PID_kd, Tf=PID_tf)
-    __lastChanged = time()
+    __lastChanged = time.time()
     
     def read_sensorValueCurrent(self):
         sensorValue = self.deviceSensor.read_attribute(self.SensorAttribute).value;
-        return sensorValue, time(), AttrQuality.ATTR_VALID
+        return sensorValue, time.time(), AttrQuality.ATTR_VALID
     
     def read_actorValueCurrent(self):
         actorValue = self.deviceActor.read_attribute(self.ActorAttribute).value;
-        return actorValue, time(), AttrQuality.ATTR_VALID
+        return actorValue, time.time(), AttrQuality.ATTR_VALID
         
     def read_sensorValueTarget(self):
-        return self.__sensorValueTarget, time(), AttrQuality.ATTR_VALID
+        return self.__sensorValueTarget, time.time(), AttrQuality.ATTR_VALID
 
     def write_sensorValueTarget(self, _sensorValueTarget):
         print("sensorValueTarget set to %f" % _sensorValueTarget)
@@ -66,7 +66,7 @@ class PidController(Device, metaclass=DeviceMeta):
     def regulate(self):
         actorValue = self.deviceActor.read_attribute(self.ActorAttribute).value;
         sensorValue = self.deviceSensor.read_attribute(self.SensorAttribute).value;
-        if((time() - self.__lastChanged ) < self.ActorMinControlInterval):
+        if((time.time() - self.__lastChanged ) < self.ActorMinControlInterval):
             return # not allowed to change again
         difference = sensorValue - self.__sensorValueTarget
         if(abs(difference) < self.Hysterese):
@@ -78,8 +78,8 @@ class PidController(Device, metaclass=DeviceMeta):
         print("difference: " + str(difference))
         
         # Calculate control signal by using PID controller
-        newActorValue = self.pid(time(), self.__sensorValueTarget - sensorValue)
-        self.__lastChanged = time()
+        newActorValue = self.pid(time.time(), self.__sensorValueTarget - sensorValue)
+        self.__lastChanged = time.time()
         self.deviceActor.write_attribute(self.ActorAttribute, newActorValue)
         print("changed actor to " + str(newActorValue))
 
