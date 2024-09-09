@@ -88,9 +88,11 @@ class PidController(Device, metaclass=DeviceMeta):
         actorValue = self.getActorValueFloat()
         sensorValue = self.getSensorValueFloat()
         if((time.time() - self.__lastChanged ) < self.ActorMinControlInterval):
+            print("no regulation: min control interval not reached")
             return # not allowed to change again
         difference = float(sensorValue) - float(self.__sensorValueTarget)
         if(abs(difference) < self.Hysterese):
+            print("no regulation: hysterese suppression")
             return # difference is in bounds of hysterese
         
         print("current actorValue: " + str(actorValue))
@@ -112,10 +114,10 @@ class PidController(Device, metaclass=DeviceMeta):
         self.get_device_properties(self.get_device_class())
         self.deviceActor = DeviceProxy(self.ActorDevice)
         self.deviceSensor = DeviceProxy(self.SensorDevice)
-        __sensorValueTarget = self.sensorValueTargetInit
-        Thread(target=self.regulateLoop).start()
+        self.__sensorValueTarget = self.sensorValueTargetInit
         self.pid = PID(Kp=float(self.PID_kp), Ki=float(self.PID_ki), Kd=float(self.PID_kd), Tf=float(self.PID_tf))
         self.pid.set_output_limits(float(self.ActorMinValue), float(self.ActorMaxValue))
+        Thread(target=self.regulateLoop).start()
         self.set_state(DevState.ON)
 
 if __name__ == "__main__":
