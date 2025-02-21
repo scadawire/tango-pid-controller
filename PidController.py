@@ -1,3 +1,6 @@
+# see also https://advanced-pid.readthedocs.io/en/latest/
+# see also https://en.wikipedia.org/wiki/Proportional%E2%80%93integral%E2%80%93derivative_controller#Derivative_term
+
 import time
 from tango import AttrQuality, AttrWriteType, DispLevel, DevState, Attr, CmdArgType, UserDefaultAttrProp, DeviceProxy
 from tango.server import Device, attribute, command, DeviceMeta
@@ -24,7 +27,12 @@ class PidController(Device, metaclass=DeviceMeta):
 
     sensorValueTarget = attribute(label="sensorValueTarget", dtype=float,
         display_level=DispLevel.EXPERT,
-        access=AttrWriteType.READ_WRITE, polling_period=1000,
+        access=AttrWriteType.READ, polling_period=1000,
+        unit="_", format="8.4f")
+
+    difference = attribute(label="difference", dtype=float,
+        display_level=DispLevel.EXPERT,
+        access=AttrWriteType.READ, polling_period=1000,
         unit="_", format="8.4f")
     
     __sensorValueTarget = 0
@@ -55,14 +63,13 @@ class PidController(Device, metaclass=DeviceMeta):
     def read_actorValueCurrent(self):
         actorValue = self.getActorValueFloat()
         return actorValue, time.time(), AttrQuality.ATTR_VALID
-        
+
+    def read_difference(self):
+        difference = self.getDifference()
+        return difference, time.time(), AttrQuality.ATTR_VALID
+
     def read_sensorValueTarget(self):
         return self.__sensorValueTarget, time.time(), AttrQuality.ATTR_VALID
-
-    def write_sensorValueTarget(self, _sensorValueTarget):
-        print("sensorValueTarget set to %f" % _sensorValueTarget)
-        self.__sensorValueTarget = _sensorValueTarget
-        self.push_change_event("sensorValueTarget", self.__sensorValueTarget)
 
     @command()
     def regulateLoop(self):
@@ -83,6 +90,11 @@ class PidController(Device, metaclass=DeviceMeta):
         if(actorAttribute.type == CmdArgType.DevString):
             actorValue = float(actorValue)
         return actorValue
+
+    def getDifference(self):
+        sensorValue = self.getSensorValueFloat()
+        difference = float(self.__sensorValueTarget) - float(sensorValue) # reference - measurent
+        return difference
         
     def regulate(self):
         actorValue = self.getActorValueFloat()
@@ -90,7 +102,7 @@ class PidController(Device, metaclass=DeviceMeta):
         if((time.time() - self.__lastChanged ) < self.ActorMinControlInterval):
             print("no regulation: min control interval not reached")
             return # not allowed to change again
-        difference = float(sensorValue) - float(self.__sensorValueTarget)
+        difference = self.getDifference()
         if(abs(difference) < self.Hysterese):
             print("no regulation: hysterese suppression")
             return # difference is in bounds of hysterese
