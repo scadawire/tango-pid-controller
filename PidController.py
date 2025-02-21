@@ -68,7 +68,7 @@ class PidController(Device, metaclass=DeviceMeta):
         difference = self.getDifference()
         return difference, time.time(), AttrQuality.ATTR_VALID
 
-    def read_sensorValueTarget(self):
+    def read_sensorValueTargetCurrent(self):
         return self.__sensorValueTarget, time.time(), AttrQuality.ATTR_VALID
 
     @command()
