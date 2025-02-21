@@ -117,7 +117,7 @@ class PidController(Device, metaclass=DeviceMeta):
         self.__sensorValueTarget = self.sensorValueTargetInit
         self.pid = PID(Kp=float(self.PID_kp), Ki=float(self.PID_ki), Kd=float(self.PID_kd), Tf=float(self.PID_tf))
         self.pid.set_output_limits(float(self.ActorMinValue), float(self.ActorMaxValue))
-        self.pid.set_initial_value(time.time())
+        self.pid.set_initial_value(time.time(), None, None)
         Thread(target=self.regulateLoop).start()
         self.set_state(DevState.ON)
 
