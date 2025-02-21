@@ -25,7 +25,7 @@ class PidController(Device, metaclass=DeviceMeta):
         access=AttrWriteType.READ, polling_period=1000,
         unit="_", format="8.4f")
 
-    sensorValueTarget = attribute(label="sensorValueTarget", dtype=float,
+    sensorValueTargetCurrent = attribute(label="sensorValueTargetCurrent", dtype=float,
         display_level=DispLevel.EXPERT,
         access=AttrWriteType.READ, polling_period=1000,
         unit="_", format="8.4f")
@@ -50,7 +50,7 @@ class PidController(Device, metaclass=DeviceMeta):
     PID_kd = device_property(dtype=float, default_value=1.0)
     PID_tf = device_property(dtype=float, default_value=0.05)
     regulateInterval = device_property(dtype=float, default_value=1)
-    sensorValueTargetInit = device_property(dtype=float, default_value=0)
+    sensorValueTarget = device_property(dtype=float, default_value=0)
     deviceActor = 0
     deviceSensor = 0
     pid = 0
@@ -126,7 +126,7 @@ class PidController(Device, metaclass=DeviceMeta):
         self.get_device_properties(self.get_device_class())
         self.deviceActor = DeviceProxy(self.ActorDevice)
         self.deviceSensor = DeviceProxy(self.SensorDevice)
-        self.__sensorValueTarget = self.sensorValueTargetInit
+        self.__sensorValueTarget = self.sensorValueTarget
         self.pid = PID(Kp=float(self.PID_kp), Ki=float(self.PID_ki), Kd=float(self.PID_kd), Tf=float(self.PID_tf))
         self.pid.set_output_limits(float(self.ActorMinValue), float(self.ActorMaxValue))
         self.pid.set_initial_value(time.time(), None, None)
