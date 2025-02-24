@@ -85,10 +85,14 @@ class PidController(Device, metaclass=DeviceMeta):
         return sensorValue
 
     def getActorValueFloat(self):
-        actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
-        actorValue = actorAttribute.value
-        if(actorAttribute.type == CmdArgType.DevString):
-            actorValue = float(actorValue)
+        actorValue = 0 # if controlled actor value is not derivable  default to 0
+        try:
+            actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
+            actorValue = actorAttribute.value
+            if(actorAttribute.type == CmdArgType.DevString):
+                actorValue = float(actorValue)
+        except Exception:
+            pass
         return actorValue
 
     def getDifference(self):
