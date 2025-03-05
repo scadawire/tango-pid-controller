@@ -41,7 +41,7 @@ class PidController(Device, metaclass=DeviceMeta):
     ActorAttribute = device_property(dtype=str, default_value="")
     SensorDevice = device_property(dtype=str, default_value="")
     SensorAttribute = device_property(dtype=str, default_value="")
-    Hysterese = device_property(dtype=float, default_value=0)
+    Hysteresis = device_property(dtype=float, default_value=0)
     ActorMinControlInterval = device_property(dtype=float, default_value=0)
     ActorMinValue = device_property(dtype=float, default_value=-10)
     ActorMaxValue = device_property(dtype=float, default_value=10)
@@ -107,8 +107,8 @@ class PidController(Device, metaclass=DeviceMeta):
             print("no regulation: min control interval not reached")
             return # not allowed to change again
         difference = self.getDifference()
-        if(abs(difference) < self.Hysterese):
-            print("no regulation: hysterese suppression")
+        if(abs(difference) < self.Hysteresis):
+            print("no regulation: hysteresis suppression")
             return # difference is in bounds of hysterese
         
         print("current actorValue: " + str(actorValue))
