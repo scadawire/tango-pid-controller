@@ -74,7 +74,10 @@ class PidController(Device, metaclass=DeviceMeta):
     @command()
     def regulateLoop(self):
         while(1):
-            self.regulate()
+            try:
+                self.regulate()
+            except Exception as e:
+                print("regulate error: " + str(e))
             time.sleep(self.regulateInterval)
 
     def getSensorValueFloat(self):
@@ -85,7 +88,7 @@ class PidController(Device, metaclass=DeviceMeta):
         return sensorValue
 
     def getActorValueFloat(self):
-        actorValue = 0 # if controlled actor value is not derivable  default to 0
+        actorValue = 0 # if controlled actor value is not derivable default to 0
         try:
             actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
             actorValue = actorAttribute.value
