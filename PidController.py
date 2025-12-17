@@ -15,6 +15,8 @@ from threading import Thread
 class PidController(Device, metaclass=DeviceMeta):
     pass
 
+    STATE_FILE = "pid_state.json"
+
     sensorValueCurrent = attribute(label="sensorValueCurrent", dtype=float,
         display_level=DispLevel.EXPERT,
         access=AttrWriteType.READ, polling_period=1000,
@@ -127,6 +129,7 @@ class PidController(Device, metaclass=DeviceMeta):
         if(actorAttribute.type == CmdArgType.DevString):
             newActorValue = str(newActorValue)
         self.deviceActor.write_attribute(self.ActorAttribute, newActorValue)
+        self.save_state()
 
     def init_device(self):
         self.set_state(DevState.INIT)
@@ -137,8 +140,24 @@ class PidController(Device, metaclass=DeviceMeta):
         self.pid = PID(Kp=float(self.PID_kp), Ki=float(self.PID_ki), Kd=float(self.PID_kd), Tf=float(self.PID_tf))
         self.pid.set_output_limits(float(self.ActorMinValue), float(self.ActorMaxValue))
         self.pid.set_initial_value(time.time(), None, None)
+        self.load_state()
         Thread(target=self.regulateLoop).start()
         self.set_state(DevState.ON)
+
+    def save_state(self):
+        state = {"pid": self.pid.__dict__,}
+        with open(self.STATE_FILE, "w") as f:
+            json.dump(state, f)
+
+    def load_state(self):
+        if not os.path.exists(self.STATE_FILE):
+            return
+        try:
+            with open(self.STATE_FILE) as f:
+                state = json.load(f)
+                self.pid.__dict__.update(state.get("pid", {}))
+        except (OSError, JSONDecodeError):
+            pass
 
 if __name__ == "__main__":
     deviceServerName = os.getenv("DEVICE_SERVER_NAME")
