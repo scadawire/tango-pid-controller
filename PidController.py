@@ -57,7 +57,7 @@ class PidController(Device, metaclass=DeviceMeta):
     PID_ki = device_property(dtype=float, default_value=0.1)
     PID_kd = device_property(dtype=float, default_value=1.0)
     PID_tf = device_property(dtype=float, default_value=0.05)
-    sensorValueTargetInitial = device_property(dtype=float, default_value=self.TARGET_NO_VALUE)
+    sensorValueTargetInitial = device_property(dtype=float, default_value=-999999999)
     enabledInitial = device_property(dtype=bool, default_value=False)
     regulateInterval = device_property(dtype=float, default_value=1)
     deviceActor = 0
