@@ -17,7 +17,7 @@ class PidController(Device, metaclass=DeviceMeta):
 
     STATE_FILE = "pid_state.json"
     TARGET_NO_VALUE = -999999999
-    __sensorValueTarget = self.TARGET_NO_VALUE
+    __sensorValueTarget = -999999999
     __enabled = False
 
     sensorValueCurrent = attribute(label="sensorValueCurrent", dtype=float,
