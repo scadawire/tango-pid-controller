@@ -81,13 +81,13 @@ class PidController(Device, metaclass=DeviceMeta):
         return self.__sensorValueTarget, time.time(), AttrQuality.ATTR_VALID
 
     def write_sensorValueTarget(self, attr):
-        self.__sensorValueTarget = attr.get_write_value()
+        self.__sensorValueTarget = attr
 
     def read_enabled(self):
         return self.__enabled, time.time(), AttrQuality.ATTR_VALID
 
     def write_enabled(self, attr):
-        self.__enabled = attr.get_write_value()
+        self.__enabled = attr
 
     @command()
     def regulateLoop(self):
