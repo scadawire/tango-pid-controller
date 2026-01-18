@@ -33,7 +33,7 @@ class PidController(Device, metaclass=DeviceMeta):
     sensorValueTarget = attribute(label="sensorValueTarget", dtype=float,
         display_level=DispLevel.EXPERT,
         access=AttrWriteType.READ_WRITE, polling_period=1000,
-        unit="T", format="8.4f")
+        unit="S", format="8.4f")
 
     enabled = attribute(label="enabled", dtype=bool,
         display_level=DispLevel.EXPERT,
