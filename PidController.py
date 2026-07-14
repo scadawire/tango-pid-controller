@@ -95,7 +95,7 @@ class PidController(Device, metaclass=DeviceMeta):
             try:
                 self.regulate()
             except Exception as e:
-                print("regulate error: " + str(e))
+                self.error_stream("regulate error: %s", str(e))
             time.sleep(self.regulateInterval)
 
     def getSensorValueFloat(self):
@@ -123,31 +123,31 @@ class PidController(Device, metaclass=DeviceMeta):
         
     def regulate(self):
         if(self.__sensorValueTarget == self.TARGET_NO_VALUE):
-            print("no sensorValueTarget given")
+            self.debug_stream("no sensorValueTarget given")
             return # not allowed to change again
         if(self.__enabled == False):
-            print("Currently not enabled")
+            self.debug_stream("Currently not enabled")
             return # not allowed to change again
 
         actorValue = self.getActorValueFloat()
         sensorValue = self.getSensorValueFloat()
         if((time.time() - self.__lastChanged ) < self.ActorMinControlInterval):
-            print("no regulation: min control interval not reached")
+            self.debug_stream("no regulation: min control interval not reached")
             return # not allowed to change again
         difference = self.getDifference()
         if(abs(difference) < self.Hysteresis):
-            print("no regulation: hysteresis suppression")
+            self.debug_stream("no regulation: hysteresis suppression")
             return # difference is in bounds of hysterese
         
-        print("current actorValue: " + str(actorValue))
-        print("current sensorValue: " + str(sensorValue))
-        print("current target value: " + str(self.__sensorValueTarget))
-        print("difference: " + str(difference))
+        self.debug_stream("current actorValue: %s", actorValue)
+        self.debug_stream("current sensorValue: %s", sensorValue)
+        self.debug_stream("current target value: %s", self.__sensorValueTarget)
+        self.debug_stream("difference: %s", difference)
         
         # Calculate control signal by using PID controller
         newActorValue = self.pid(time.time(), difference)
         self.__lastChanged = time.time()
-        print("changing actor to " + str(newActorValue))
+        self.info_stream("changing actor to %s", newActorValue)
         actorAttribute = self.deviceActor.read_attribute(self.ActorAttribute)
         if(actorAttribute.type == CmdArgType.DevString):
             newActorValue = str(newActorValue)
