@@ -162,9 +162,17 @@ class PidController(Device, metaclass=DeviceMeta):
         self.pid = PID(Kp=float(self.PID_kp), Ki=float(self.PID_ki), Kd=float(self.PID_kd), Tf=float(self.PID_tf))
         self.pid.set_output_limits(float(self.ActorMinValue), float(self.ActorMaxValue))
         self.pid.set_initial_value(time.time(), None, None)
+        self.applyInitialProperties()
         self.load_state()
         Thread(target=self.regulateLoop).start()
         self.set_state(DevState.ON)
+
+    def applyInitialProperties(self):
+        # the properties of the device are what it starts from - a saved state only overrides
+        # them afterwards. without this a device that has no state file yet ignores its whole
+        # configuration and stays at the class defaults, disabled, so it never regulates at all
+        self.__sensorValueTarget = self.sensorValueTargetInitial
+        self.__enabled = self.enabledInitial
 
     def save_state(self):
         state = {

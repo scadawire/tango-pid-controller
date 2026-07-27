@@ -312,6 +312,18 @@ def test_save_and_load_state():
     s.cleanup()
 
 
+def test_initial_properties_seed_a_device_without_state_file():
+    print("\n-- initial properties seed a device that has no state file --")
+    s = State()
+    s.STATE_FILE = s.STATE_FILE + ".does-not-exist"
+    s.sensorValueTargetInitial = 37.0
+    s.enabledInitial = True
+    PidController.applyInitialProperties(s)
+    PidController.load_state(s)  # nothing to restore, and it must not undo the properties
+    assert_equal("target taken from the property", getattr(s, "_PidController__sensorValueTarget"), 37.0)
+    assert_equal("enabled taken from the property", getattr(s, "_PidController__enabled"), True)
+
+
 def test_load_state_missing_file():
     print("\n-- load_state: missing file is a no-op --")
     s = State()
@@ -360,6 +372,7 @@ def main():
         test_regulate_string_actor()
         test_regulate_updates_last_changed()
         test_save_and_load_state()
+        test_initial_properties_seed_a_device_without_state_file()
         test_load_state_missing_file()
         test_target_and_enabled_accessors()
     except Exception:
